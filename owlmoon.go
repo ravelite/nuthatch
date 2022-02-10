@@ -14,14 +14,41 @@ import (
 	"strings"
 	"path"
 	"time"
+	"github.com/rickb777/date/period"
 )
 
 func remove_ext(fn string) string {
       return strings.TrimSuffix(fn, path.Ext(fn))
 }
 
-func time_since(item *gofeed.Item) time.Duration {
-	return time.Now().Sub( *item.PublishedParsed )
+// func time_since(item *gofeed.Item) time.Duration {
+// 	return time.Now().Sub( *item.PublishedParsed )
+// }
+
+func format_time_since( t1 time.Time, t2 time.Time ) (string,string) {
+	p := period.Between( t1, t2 ).Normalise(false)
+
+	var str, cstr string
+	if p.Years() > 0 {
+		str = fmt.Sprintf( "%dY", p.Years() )
+		cstr = "BurlyWood"
+	} else if p.Months() > 0 {
+		str = fmt.Sprintf( "%dM", p.Months() )
+		cstr = "BurlyWood"
+	} else if p.Days() > 0 {
+		str = fmt.Sprintf( "%dD", p.Days() )
+		cstr = "CadetBlue"
+	} else if p.Hours() > 0 {
+		str = fmt.Sprintf( "%dh", p.Hours() )
+		cstr = "green"
+	} else if p.Minutes() > 0 {
+		str = fmt.Sprintf( "%dm", p.Minutes() )
+		cstr = "green"
+	} else {
+		str = fmt.Sprintf( "%ds", p.Seconds() )
+		cstr = "green"
+	}
+	return str, cstr		
 }
 
 func main() {
@@ -69,7 +96,11 @@ func main() {
 			//annotate items with time_since
 			for _, item := range feed.Items {
 				m := make(map[string]string)
-				m["time_since"] = fmt.Sprint( time_since( item ) )
+				//m["time_since"] = fmt.Sprintf("duration: %s", time_since(item).Round(time.Second) )
+
+				str,cstr := format_time_since( *item.PublishedParsed, time.Now() )
+				m["time_since"] = str
+				m["time_color"] = cstr
 				item.Custom = m
 			}
 
@@ -83,7 +114,7 @@ func main() {
 
 	funcMap := template.FuncMap{
         "now": time.Now,
-		"time_since": time_since,
+		//"time_since": time_since,
     }
 	
     tmpl := template.Must(template.New("tabs.html").Funcs(funcMap).ParseFiles("tabs.html"))

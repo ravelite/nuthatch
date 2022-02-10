@@ -55,7 +55,7 @@ body {font-family: Arial;}
 
 {{define "item"}}
 <p><a href="{{.Link}}" target="_blank">{{.Title}}</a>
-  {{index .Custom "time_since"}}
+  <span style="background:{{index .Custom "time_color"}}">{{index .Custom "time_since"}}</span>
 {{end}}
 
 <!--Now, include a content section for each category-->
