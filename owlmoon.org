@@ -1,0 +1,9 @@
+
+
+
+* TODO Sort feeds in category
+
+* TODO Display dates since new
+
+** TODO Display with fraidycat colors
+
