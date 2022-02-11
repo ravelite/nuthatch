@@ -108,6 +108,19 @@ func main() {
 			data[catname] = append( data[catname], feed )
 
 		} //all urls in file
+
+		catlist := data[catname]
+
+		//sort items in category
+		sort.Slice( catlist, func(i, j int) bool {
+			var t1, t2 time.Time
+			t1 = *catlist[i].Items[0].PublishedParsed
+			t2 = *catlist[j].Items[0].PublishedParsed
+			return t2.Before( t1 )
+		})
+
+		data[catname] = catlist	
+		
 	} //all files
 
 	//fmt.Println( data )
