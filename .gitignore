@@ -1,0 +1,5 @@
+config/
+opml_convert/
+*.exe
+*~
+
