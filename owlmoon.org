@@ -1,9 +1,18 @@
 
 
 
-* TODO Sort feeds in category
+* TODO File inputs
 
-* TODO Display dates since new
+** TODO support separate category loading with *.txt 
 
-** TODO Display with fraidycat colors
+** TODO support separate category loading with *.toml
 
+* TODO support different input file locations
+
+** TODO support working directory
+
+** TODO support user configuration directory
+
+* TODO write a converter from OPML to folder of TOML categories
+
+* TODO To not do: automatically shut down webserver

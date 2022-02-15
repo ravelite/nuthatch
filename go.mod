@@ -11,6 +11,7 @@ require (
 require (
 	github.com/PuerkitoBio/goquery v1.5.1 // indirect
 	github.com/andybalholm/cascadia v1.1.0 // indirect
+	github.com/gilliek/go-opml v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/mmcdole/goxpp v0.0.0-20181012175147-0068e33feabf // indirect
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
