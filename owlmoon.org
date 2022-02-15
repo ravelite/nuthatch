@@ -13,6 +13,6 @@
 
 ** TODO support user configuration directory
 
-* TODO write a converter from OPML to folder of TOML categories
+* DONE write a converter from OPML to folder of TOML categories
 
 * TODO To not do: automatically shut down webserver
