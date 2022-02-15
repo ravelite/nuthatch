@@ -15,4 +15,5 @@
 
 * DONE write a converter from OPML to folder of TOML categories
 
-* TODO To not do: automatically shut down webserver
+* TODO make proper command line output for each parsed file
+  and post instructions for quitting server (close window or ctrl-C)
