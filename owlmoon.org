@@ -17,3 +17,6 @@
 
 * TODO make proper command line output for each parsed file
   and post instructions for quitting server (close window or ctrl-C)
+
+* DONE embed the template file as a resource
+

@@ -14,6 +14,7 @@ import (
 	"strings"
 	"path"
 	"time"
+	"embed"
 	"github.com/rickb777/date/period"
 )
 
@@ -51,11 +52,14 @@ func format_time_since( t1 time.Time, t2 time.Time ) (string,string) {
 	return str, cstr		
 }
 
+//go:embed tabs.html
+var tabs embed.FS
+
 func main() {
 
 	var data map[string][]*gofeed.Feed
 	data = make( map[string][]*gofeed.Feed )
-
+	
 	matches, _ := filepath.Glob( "config/*.txt" )
 	fmt.Println( matches )
 
@@ -123,14 +127,8 @@ func main() {
 		
 	} //all files
 
-	//fmt.Println( data )
-
-	funcMap := template.FuncMap{
-        "now": time.Now,
-		//"time_since": time_since,
-    }
 	
-    tmpl := template.Must(template.New("tabs.html").Funcs(funcMap).ParseFiles("tabs.html"))
+    tmpl := template.Must(template.ParseFS(tabs, "*.html"))
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 	    tmpl.Execute(w, data)
     })

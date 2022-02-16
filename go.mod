@@ -1,5 +1,6 @@
 module example/owlmoon
 
+//go 1.16 or later needed for embed
 go 1.17
 
 require (
