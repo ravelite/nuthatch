@@ -26,3 +26,52 @@ Archived entries from file c:/Users/Graham/Desktop/projects/owlmoon/owlmoon.org
 
 ** DONE Display with fraidycat colors
 
+
+* DONE embed the template file as a resource
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2022-02-16 Wed 15:03
+  :ARCHIVE_FILE: c:/Users/Graham/Desktop/projects/owlmoon/owlmoon.org
+  :ARCHIVE_CATEGORY: owlmoon
+  :ARCHIVE_TODO: DONE
+  :END:
+
+
+* DONE write a converter from OPML to folder of TOML categories
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2022-02-16 Wed 15:03
+  :ARCHIVE_FILE: c:/Users/Graham/Desktop/projects/owlmoon/owlmoon.org
+  :ARCHIVE_CATEGORY: owlmoon
+  :ARCHIVE_TODO: DONE
+  :END:
+
+
+* DONE post instructions for quitting server (close window or ctrl-C)
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2022-02-16 Wed 15:03
+  :ARCHIVE_FILE: c:/Users/Graham/Desktop/projects/owlmoon/owlmoon.org
+  :ARCHIVE_CATEGORY: owlmoon
+  :ARCHIVE_TODO: DONE
+  :END:
+
+
+* DONE File inputs
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2022-02-16 Wed 18:00
+  :ARCHIVE_FILE: c:/Users/Graham/Desktop/projects/owlmoon/owlmoon.org
+  :ARCHIVE_CATEGORY: owlmoon
+  :ARCHIVE_TODO: DONE
+  :END:
+
+** DONE support separate category loading with *.txt 
+
+** DONE support separate category loading with *.toml
+
+
+* DONE make proper command line output for each parsed file
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2022-02-16 Wed 18:01
+  :ARCHIVE_FILE: c:/Users/Graham/Desktop/projects/owlmoon/owlmoon.org
+  :ARCHIVE_CATEGORY: owlmoon
+  :ARCHIVE_TODO: DONE
+  :END:
+

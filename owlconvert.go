@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	//"bufio"
 	"path/filepath"
 	"github.com/gilliek/go-opml/opml"
 )
@@ -27,9 +26,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-    //xml, _ := doc.XML()
-	//fmt.Println(xml)
-
 	//extract list of categories with slices of outlines
 	var catset map[string][]opml.Outline
 	catset = make( map[string][]opml.Outline )
@@ -40,16 +36,6 @@ func main() {
 			catset[cat] = append( catset[cat], outline )
 		}
 	}
-
-	// for k,v := range catset {
-	// 	fmt.Println( k )
-	// 	fmt.Println( v )
-	// }
-	
-	//print all titles
-	// for _,outline := range doc.Body.Outlines {
-	// 	fmt.Println( outline.Title )
-	// }
 
 	os.MkdirAll("opml_convert", os.ModePerm)
 

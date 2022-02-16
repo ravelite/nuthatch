@@ -16,15 +16,12 @@ import (
 	"time"
 	"embed"
 	"github.com/rickb777/date/period"
+	"github.com/BurntSushi/toml"
 )
 
 func remove_ext(fn string) string {
       return strings.TrimSuffix(fn, path.Ext(fn))
 }
-
-// func time_since(item *gofeed.Item) time.Duration {
-// 	return time.Now().Sub( *item.PublishedParsed )
-// }
 
 func format_time_since( t1 time.Time, t2 time.Time ) (string,string) {
 	p := period.Between( t1, t2 ).Normalise(false)
@@ -55,18 +52,91 @@ func format_time_since( t1 time.Time, t2 time.Time ) (string,string) {
 //go:embed tabs.html
 var tabs embed.FS
 
+//parse and process a feed from a URL with optional name to replace the title
+func process_feed( fp *gofeed.Parser, url string, name string ) (*gofeed.Feed, error) {
+
+	feed, err := fp.ParseURL( url )
+
+	//if we have a failure to parse, log and return the error
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	//sort the feed in ascending order
+	sort.Sort( sort.Reverse( feed ))
+
+	//pass max 10 items
+	feed.Items = feed.Items[0:10]
+
+	//annotate items with time_since
+	for _, item := range feed.Items {
+		m := make(map[string]string)
+
+		str,cstr := format_time_since( *item.PublishedParsed, time.Now() )
+		m["time_since"] = str
+		m["time_color"] = cstr
+		item.Custom = m
+	}
+
+	//replace feed title if nonempty
+	if len(name) > 0 {
+		feed.Title = name
+	}
+
+	//return the feed
+	return feed, nil
+}
+
+func sort_category( catlist []*gofeed.Feed ) {
+
+	//sort items in category
+	sort.Slice( catlist, func(i, j int) bool {
+		var t1, t2 time.Time
+		t1 = *catlist[i].Items[0].PublishedParsed
+		t2 = *catlist[j].Items[0].PublishedParsed
+		return t2.Before( t1 )
+	})
+}
+
+type tomlConfig struct {
+	Name string 
+	Feeds []tomlFeed `toml:"feeds"`
+}
+
+
+type tomlFeed struct {
+	Name string
+	Link string
+}
+
+
 func main() {
+
+	fmt.Println( "Welcome to owlmoon." )
 
 	var data map[string][]*gofeed.Feed
 	data = make( map[string][]*gofeed.Feed )
-	
-	matches, _ := filepath.Glob( "config/*.txt" )
-	fmt.Println( matches )
 
 	fp := gofeed.NewParser()
 
+	//check for existence of "feeds" in working directory
+	fmt.Print( "Checking existence of \"feeds\" in working directory... " )
+
+	_, err := os.Stat( "feeds" )
+	if err != nil {
+		fmt.Println( "not found." )
+	} else {
+		fmt.Println( "found. ")
+	}
+
+	//PARSE text files
+	matches, _ := filepath.Glob( "feeds/*.txt" )
+
 	for _,urlfile := range matches {
 
+		fmt.Printf( "Parsing text file %s.\n", urlfile )
+		
 		_, filename := filepath.Split( urlfile )
 		catname := remove_ext( filename )
 
@@ -79,54 +149,66 @@ func main() {
 		scanner := bufio.NewScanner(file)
 		
 		for scanner.Scan() {
-			//fmt.Println(scanner.Text())
 
-			//try to parse each line as a URL
-			feed, err := fp.ParseURL( scanner.Text() )
-			
+			feed, err := process_feed( fp, scanner.Text(), "" )
+
 			if err != nil {
 				log.Println(err)
 				continue
 			}
-
-			//if successfully parsed, add to data
-
-			//this does ascending sort on the feed
-			sort.Sort( sort.Reverse( feed ))
-
-			//pass max 10 items
-			feed.Items = feed.Items[0:10]
-
-			//annotate items with time_since
-			for _, item := range feed.Items {
-				m := make(map[string]string)
-				//m["time_since"] = fmt.Sprintf("duration: %s", time_since(item).Round(time.Second) )
-
-				str,cstr := format_time_since( *item.PublishedParsed, time.Now() )
-				m["time_since"] = str
-				m["time_color"] = cstr
-				item.Custom = m
-			}
-
+			
 			//add to slice
 			data[catname] = append( data[catname], feed )
 
 		} //all urls in file
 
-		catlist := data[catname]
+		fmt.Printf( "Found %d feeds.\n", len(data[catname]))
 
-		//sort items in category
-		sort.Slice( catlist, func(i, j int) bool {
-			var t1, t2 time.Time
-			t1 = *catlist[i].Items[0].PublishedParsed
-			t2 = *catlist[j].Items[0].PublishedParsed
-			return t2.Before( t1 )
-		})
-
-		data[catname] = catlist	
+		sort_category( data[catname] )
 		
 	} //all files
 
+	//PARSE toml files
+	matches, _ = filepath.Glob( "feeds/*.toml" )
+
+	for _,tomlfile := range matches {
+
+		fmt.Printf( "Parsing toml file %s.\n", tomlfile )
+
+		_, filename := filepath.Split( tomlfile )
+		catname := remove_ext( filename )
+
+		var config tomlConfig
+		_,err := toml.DecodeFile( tomlfile, &config )
+		if err != nil {
+			log.Fatal(err)
+		}
+		
+		//fmt.Println( config )
+		//fmt.Println( mdata )
+		
+		//replace category name
+		if len(config.Name) > 0 {
+			catname = config.Name
+		}
+
+		fmt.Printf( "Found %d feeds.\n", len(config.Feeds) )
+
+		for _,tfeed := range config.Feeds {
+
+			feed, err := process_feed( fp, tfeed.Link, tfeed.Name )
+
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			
+			//add to slice
+			data[catname] = append( data[catname], feed )
+		}
+
+		sort_category( data[catname] )
+	}
 	
     tmpl := template.Must(template.ParseFS(tabs, "*.html"))
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -134,6 +216,8 @@ func main() {
     })
 
 	go browser.OpenURL("http://localhost:8080")
+
+	fmt.Println( "Ctrl-C or close console to stop http server." )
 	
 	http.ListenAndServe(":8080", nil)
 }

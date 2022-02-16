@@ -1,22 +1,9 @@
 
 
 
-* TODO File inputs
-
-** TODO support separate category loading with *.txt 
-
-** TODO support separate category loading with *.toml
-
 * TODO support different input file locations
 
-** TODO support working directory
+** DONE support working directory
 
 ** TODO support user configuration directory
-
-* DONE write a converter from OPML to folder of TOML categories
-
-* TODO make proper command line output for each parsed file
-  and post instructions for quitting server (close window or ctrl-C)
-
-* DONE embed the template file as a resource
 

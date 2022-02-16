@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	github.com/BurntSushi/toml v1.0.0 // indirect
 	github.com/PuerkitoBio/goquery v1.5.1 // indirect
 	github.com/andybalholm/cascadia v1.1.0 // indirect
 	github.com/gilliek/go-opml v1.0.0 // indirect
