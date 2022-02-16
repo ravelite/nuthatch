@@ -41,6 +41,7 @@ body {font-family: Arial;}
   border: 1px solid #ccc;
   border-top: none;
 }
+
 </style>
 </head>
 <body>
@@ -54,8 +55,9 @@ body {font-family: Arial;}
 </div>
 
 {{define "item"}}
-<p><a href="{{.Link}}" target="_blank">{{.Title}}</a>
+<a href="{{.Link}}" target="_blank">{{.Title}}</a>
   <span style="background:{{index .Custom "time_color"}}">{{index .Custom "time_since"}}</span>
+  <br>
 {{end}}
 
 <!--Now, include a content section for each category-->
@@ -63,7 +65,7 @@ body {font-family: Arial;}
 <div id="{{$k}}" class="tabcontent">
 
   {{range $v}}
-  <details>
+  <p><details>
 	<summary>{{.Title}}
 	  {{with index .Items 0}}
 	  {{template "item" .}}
