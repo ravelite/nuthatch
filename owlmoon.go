@@ -67,8 +67,12 @@ func process_feed( fp *gofeed.Parser, url string, name string ) (*gofeed.Feed, e
 	sort.Sort( sort.Reverse( feed ))
 
 	//pass max 10 items
-	feed.Items = feed.Items[0:10]
 
+	num_items := len( feed.Items )
+	if num_items >= 10 {
+		feed.Items = feed.Items[0:10]
+	}
+		
 	//annotate items with time_since
 	for _, item := range feed.Items {
 		m := make(map[string]string)
@@ -181,7 +185,8 @@ func main() {
 		var config tomlConfig
 		_,err := toml.DecodeFile( tomlfile, &config )
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
+			continue
 		}
 		
 		//fmt.Println( config )
