@@ -17,6 +17,7 @@ import (
 	"embed"
 	"github.com/rickb777/date/period"
 	"github.com/BurntSushi/toml"
+	"context"
 )
 
 func remove_ext(fn string) string {
@@ -24,7 +25,17 @@ func remove_ext(fn string) string {
 }
 
 func format_time_since( t1 time.Time, t2 time.Time ) (string,string) {
+
+	defer func() {
+        if r := recover(); r != nil {
+            //fmt.Println("Recovered in f", r)
+			//return "eternity", "blue"
+        }
+    }()
+	
 	p := period.Between( t1, t2 ).Normalise(false)
+
+	//todo: find a way to recover from panic
 
 	var str, cstr string
 	if p.Years() > 0 {
@@ -55,17 +66,29 @@ var tabs embed.FS
 //parse and process a feed from a URL with optional name to replace the title
 func process_feed( fp *gofeed.Parser, url string, name string ) (*gofeed.Feed, error) {
 
-	feed, err := fp.ParseURL( url )
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	
+	feed, err := fp.ParseURLWithContext( url, ctx )
 
-	//if we have a failure to parse, log and return the error
+	//if we have a failure to parse, return the error
 	if err != nil {
-		log.Println(err)
 		return nil, err
+	}
+
+	ddate := time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)
+
+	//make sure each feed has PublishedParsed
+	for _,item := range feed.Items {
+		if item.PublishedParsed == nil {
+			//give items a default date
+			item.PublishedParsed = &ddate
+		}
 	}
 
 	//sort the feed in ascending order
 	sort.Sort( sort.Reverse( feed ))
-
+	
 	//pass max 10 items
 
 	num_items := len( feed.Items )
