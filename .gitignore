@@ -2,4 +2,5 @@ config/
 opml_convert/
 *.exe
 *~
-
+feeds/
+feeds_old/

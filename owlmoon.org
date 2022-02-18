@@ -7,3 +7,9 @@
 
 ** TODO support user configuration directory
 
+* DONE First parse all sources and put feeds in a queue
+
+* TODO Support concurrent fetching of feeds
+  possibly with a worker pool
+
+

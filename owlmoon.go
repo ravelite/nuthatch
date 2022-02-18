@@ -137,6 +137,13 @@ type tomlFeed struct {
 	Link string
 }
 
+//this structure is for collecting all feeds to be parsed
+type feedTask struct {
+	Name string
+	Link string
+	Category string
+}
+
 
 func main() {
 
@@ -156,6 +163,8 @@ func main() {
 	} else {
 		fmt.Println( "found. ")
 	}
+
+	var tasks []feedTask
 
 	//PARSE text files
 	matches, _ := filepath.Glob( "feeds/*.txt" )
@@ -177,21 +186,10 @@ func main() {
 		
 		for scanner.Scan() {
 
-			feed, err := process_feed( fp, scanner.Text(), "" )
-
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-			
-			//add to slice
-			data[catname] = append( data[catname], feed )
-
+			tasks = append( tasks, feedTask{Link: scanner.Text(), Category: catname} )			
 		} //all urls in file
 
 		fmt.Printf( "Found %d feeds.\n", len(data[catname]))
-
-		sort_category( data[catname] )
 		
 	} //all files
 
@@ -212,9 +210,6 @@ func main() {
 			continue
 		}
 		
-		//fmt.Println( config )
-		//fmt.Println( mdata )
-		
 		//replace category name
 		if len(config.Name) > 0 {
 			catname = config.Name
@@ -223,19 +218,29 @@ func main() {
 		fmt.Printf( "Found %d feeds.\n", len(config.Feeds) )
 
 		for _,tfeed := range config.Feeds {
-
-			feed, err := process_feed( fp, tfeed.Link, tfeed.Name )
-
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-			
-			//add to slice
-			data[catname] = append( data[catname], feed )
+			tasks = append( tasks,
+				feedTask{Name: tfeed.Name, Link: tfeed.Link, Category: catname} )
 		}
+	}
 
-		sort_category( data[catname] )
+	fmt.Printf( "Total feeds to fetch: %d\n", len( tasks ) )
+
+	//first draft: go and process all the feedTasks
+	for _,ftask := range tasks {
+		feed, err := process_feed( fp, ftask.Link, ftask.Name )
+
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+			
+		//add to slice
+		data[ftask.Category] = append( data[ftask.Category], feed )
+	}
+
+	//sort all categories
+	for cat := range data {
+		sort_category( data[cat] )
 	}
 	
     tmpl := template.Must(template.ParseFS(tabs, "*.html"))
