@@ -21,3 +21,5 @@
 * TODO Write user documentation
 
 * TODO owlconvert: print usage if called with no arguments
+
+* TODO add options for timeouts
