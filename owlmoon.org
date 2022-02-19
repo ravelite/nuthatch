@@ -12,4 +12,12 @@
 * DONE Support concurrent fetching of feeds
   possibly with a worker pool
 
+* TODO Niceties
 
+** TODO Support favicons
+
+** TODO Add a title, possibly with date
+
+* TODO Write user documentation
+
+* TODO owlconvert: print usage if called with no arguments
