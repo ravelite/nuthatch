@@ -5,19 +5,17 @@ import (
 	"sort"
 	"html/template"
 	"net/http"
-	"github.com/pkg/browser"
-	"github.com/mmcdole/gofeed"
 	"path/filepath"
 	"log"
-	"bufio"
 	"os"
 	"strings"
 	"path"
 	"time"
 	"embed"
-	"github.com/rickb777/date/period"
-	"github.com/BurntSushi/toml"
 	"context"
+	"github.com/pkg/browser"
+	"github.com/mmcdole/gofeed"
+	"github.com/rickb777/date/period"
 )
 
 func remove_ext(fn string) string {
@@ -59,9 +57,6 @@ func format_time_since( t1 time.Time, t2 time.Time ) (string,string) {
 	}
 	return str, cstr		
 }
-
-//go:embed tabs.html
-var tabs embed.FS
 
 //parse and process a feed from a URL with optional name to replace the title
 func process_feed( fp *gofeed.Parser, url string, name string ) (*gofeed.Feed, error) {
@@ -126,24 +121,32 @@ func sort_category( catlist []*gofeed.Feed ) {
 	})
 }
 
-type tomlConfig struct {
-	Name string 
-	Feeds []tomlFeed `toml:"feeds"`
-}
 
+//go:embed tabs.html
+var tabs embed.FS
 
-type tomlFeed struct {
-	Name string
-	Link string
-}
-
-//this structure is for collecting all feeds to be parsed
 type feedTask struct {
 	Name string
 	Link string
 	Category string
+	Feed *gofeed.Feed
 }
 
+func worker( id int, tasks []feedTask, jobs <-chan int, results chan<- int ) {
+	fp := gofeed.NewParser()
+
+	for j := range jobs {
+		feed, err := process_feed( fp, tasks[j].Link, tasks[j].Name )
+
+		if err != nil {
+			log.Println(err)
+		} else {
+			tasks[j].Feed = feed
+		}
+		//consider the job finished
+		results <- j
+	}
+}
 
 func main() {
 
@@ -152,7 +155,7 @@ func main() {
 	var data map[string][]*gofeed.Feed
 	data = make( map[string][]*gofeed.Feed )
 
-	fp := gofeed.NewParser()
+	//fp := gofeed.NewParser()
 
 	//check for existence of "feeds" in working directory
 	fmt.Print( "Checking existence of \"feeds\" in working directory... " )
@@ -168,77 +171,45 @@ func main() {
 
 	//PARSE text files
 	matches, _ := filepath.Glob( "feeds/*.txt" )
-
-	for _,urlfile := range matches {
-
-		fmt.Printf( "Parsing text file %s.\n", urlfile )
-		
-		_, filename := filepath.Split( urlfile )
-		catname := remove_ext( filename )
-
-		file, err := os.Open( urlfile )
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		
-		for scanner.Scan() {
-
-			tasks = append( tasks, feedTask{Link: scanner.Text(), Category: catname} )			
-		} //all urls in file
-
-		fmt.Printf( "Found %d feeds.\n", len(data[catname]))
-		
-	} //all files
+	tasks = parseTextFiles( matches, tasks )
 
 	//PARSE toml files
 	matches, _ = filepath.Glob( "feeds/*.toml" )
+	tasks = parseTomlFiles( matches, tasks )
 
-	for _,tomlfile := range matches {
-
-		fmt.Printf( "Parsing toml file %s.\n", tomlfile )
-
-		_, filename := filepath.Split( tomlfile )
-		catname := remove_ext( filename )
-
-		var config tomlConfig
-		_,err := toml.DecodeFile( tomlfile, &config )
-		if err != nil {
-			log.Print(err)
-			continue
-		}
-		
-		//replace category name
-		if len(config.Name) > 0 {
-			catname = config.Name
-		}
-
-		fmt.Printf( "Found %d feeds.\n", len(config.Feeds) )
-
-		for _,tfeed := range config.Feeds {
-			tasks = append( tasks,
-				feedTask{Name: tfeed.Name, Link: tfeed.Link, Category: catname} )
-		}
-	}
 
 	fmt.Printf( "Total feeds to fetch: %d\n", len( tasks ) )
 
-	//first draft: go and process all the feedTasks
+	//use workers to fetch feeds
+	numJobs := len( tasks )
+	jobs := make(chan int, numJobs)
+    results := make(chan int, numJobs)
+
+	//setup workers
+	numWorkers := 10
+	for w := 0; w < numWorkers; w++ {
+        go worker(w, tasks, jobs, results)
+    }
+
+	//setup jobs
+	for j := 0; j < numJobs; j++ {
+        jobs <- j
+    }
+    close(jobs)
+
+	//wait on results
+	for a := 0; a < numJobs; a++ {
+        <-results
+    }
+
+	//add all feeds to categories
 	for _,ftask := range tasks {
-		feed, err := process_feed( fp, ftask.Link, ftask.Name )
-
-		if err != nil {
-			log.Println(err)
-			continue
+		if ftask.Feed != nil {
+			data[ftask.Category] = append( data[ftask.Category], ftask.Feed )
 		}
-			
-		//add to slice
-		data[ftask.Category] = append( data[ftask.Category], feed )
 	}
-
-	//sort all categories
+	
+	//finally, sort all categories
 	for cat := range data {
 		sort_category( data[cat] )
 	}

@@ -9,7 +9,7 @@
 
 * DONE First parse all sources and put feeds in a queue
 
-* TODO Support concurrent fetching of feeds
+* DONE Support concurrent fetching of feeds
   possibly with a worker pool
 
 
