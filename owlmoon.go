@@ -8,57 +8,18 @@ import (
 	"path/filepath"
 	"log"
 	"os"
-	"strings"
-	"path"
+	//"strings"
+	//"path"
 	"time"
 	"embed"
 	"context"
 	"github.com/pkg/browser"
 	"github.com/mmcdole/gofeed"
-	"github.com/rickb777/date/period"
+	//"github.com/rickb777/date/period"
 )
 
-func remove_ext(fn string) string {
-      return strings.TrimSuffix(fn, path.Ext(fn))
-}
-
-func format_time_since( t1 time.Time, t2 time.Time ) (string,string) {
-
-	defer func() {
-        if r := recover(); r != nil {
-            //fmt.Println("Recovered in f", r)
-			//return "eternity", "blue"
-        }
-    }()
-	
-	p := period.Between( t1, t2 ).Normalise(false)
-
-	//todo: find a way to recover from panic
-
-	var str, cstr string
-	if p.Years() > 0 {
-		str = fmt.Sprintf( "%dY", p.Years() )
-		cstr = "BurlyWood"
-	} else if p.Months() > 0 {
-		str = fmt.Sprintf( "%dM", p.Months() )
-		cstr = "BurlyWood"
-	} else if p.Days() > 0 {
-		str = fmt.Sprintf( "%dD", p.Days() )
-		cstr = "CadetBlue"
-	} else if p.Hours() > 0 {
-		str = fmt.Sprintf( "%dh", p.Hours() )
-		cstr = "green"
-	} else if p.Minutes() > 0 {
-		str = fmt.Sprintf( "%dm", p.Minutes() )
-		cstr = "green"
-	} else {
-		str = fmt.Sprintf( "%ds", p.Seconds() )
-		cstr = "green"
-	}
-	return str, cstr		
-}
-
 //parse and process a feed from a URL with optional name to replace the title
+//this is the main work to be done for each feed
 func process_feed( fp *gofeed.Parser, url string, name string ) (*gofeed.Feed, error) {
 
 	//this version is for using non-default timeout
@@ -70,7 +31,6 @@ func process_feed( fp *gofeed.Parser, url string, name string ) (*gofeed.Feed, e
 	//without timeout
 	//feed, err := fp.ParseURL( url )
 	
-
 	//if we have a failure to parse, return the error
 	if err != nil {
 		return nil, err
@@ -115,21 +75,11 @@ func process_feed( fp *gofeed.Parser, url string, name string ) (*gofeed.Feed, e
 	return feed, nil
 }
 
-func sort_category( catlist []*gofeed.Feed ) {
-
-	//sort items in category
-	sort.Slice( catlist, func(i, j int) bool {
-		var t1, t2 time.Time
-		t1 = *catlist[i].Items[0].PublishedParsed
-		t2 = *catlist[j].Items[0].PublishedParsed
-		return t2.Before( t1 )
-	})
-}
-
-
+//embed the tabs template as a file descriptor
 //go:embed tabs.html
 var tabs embed.FS
 
+//task structure used to collect feed URLs and turn them into parsed feeds
 type feedTask struct {
 	Name string
 	Link string
