@@ -61,10 +61,15 @@ func format_time_since( t1 time.Time, t2 time.Time ) (string,string) {
 //parse and process a feed from a URL with optional name to replace the title
 func process_feed( fp *gofeed.Parser, url string, name string ) (*gofeed.Feed, error) {
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	//this version is for using non-default timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	
 	feed, err := fp.ParseURLWithContext( url, ctx )
+
+	//without timeout
+	//feed, err := fp.ParseURL( url )
+	
 
 	//if we have a failure to parse, return the error
 	if err != nil {

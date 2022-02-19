@@ -18,6 +18,9 @@
 
 ** TODO Add a title, possibly with date
 
+** TODO Add a progress bar, possibly
+   https://github.com/schollz/progressbar
+
 * TODO Write user documentation
 
 * TODO owlconvert: print usage if called with no arguments
