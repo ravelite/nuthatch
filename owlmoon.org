@@ -29,3 +29,7 @@
 ** TODO improve spacing of generated HTML
 
 ** TODO move date colors to CSS
+
+* TODO Name change to nuthatch feedspeeder
+
+

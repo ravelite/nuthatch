@@ -16,6 +16,7 @@ import (
 	"github.com/pkg/browser"
 	"github.com/mmcdole/gofeed"
 	//"github.com/rickb777/date/period"
+	"github.com/shibukawa/configdir"
 )
 
 //parse and process a feed from a URL with optional name to replace the title
@@ -121,6 +122,27 @@ func main() {
 	} else {
 		fmt.Println( "found. ")
 	}
+
+	//check for existence of "feeds" in user config directly
+	configDirs := configdir.New("ravelite", "nuthatch")
+	configDirs.LocalPath, _ = filepath.Abs(".") //add local path
+
+	// Checks to user folder
+	folders := configDirs.QueryFolders(configdir.Global)
+	//folders[0].WriteFile("setting.json", data)
+	userFolder := folders[0]
+
+	fmt.Print( "Checking existence of \"feeds\" in user configuration directory:\n" )
+	fmt.Print( userFolder.Path )
+
+	_, err = os.Stat( filepath.Join(userFolder.Path, "feeds" ))
+	if err != nil {
+		fmt.Println( "... not found." )
+	} else {
+		fmt.Println( "... found. " )
+	}
+	
+	//folder := configDirs.QueryFolderContainsFile("setting.json")
 
 	var tasks []feedTask
 
