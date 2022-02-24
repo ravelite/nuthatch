@@ -7,11 +7,6 @@
 
 ** TODO support user configuration directory
 
-* DONE First parse all sources and put feeds in a queue
-
-* DONE Support concurrent fetching of feeds
-  possibly with a worker pool
-
 * TODO Niceties
 
 ** TODO Support favicons
@@ -26,3 +21,11 @@
 * TODO owlconvert: print usage if called with no arguments
 
 * TODO add options for timeouts
+
+* TODO add left/right arrow key tab navigation
+
+* TODO improve legibility of generated HTML
+
+** TODO improve spacing of generated HTML
+
+** TODO move date colors to CSS

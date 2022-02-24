@@ -75,3 +75,22 @@ Archived entries from file c:/Users/Graham/Desktop/projects/owlmoon/owlmoon.org
   :ARCHIVE_TODO: DONE
   :END:
 
+
+* DONE First parse all sources and put feeds in a queue
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2022-02-24 Thu 08:11
+  :ARCHIVE_FILE: c:/Users/Graham/Desktop/projects/owlmoon/owlmoon.org
+  :ARCHIVE_CATEGORY: owlmoon
+  :ARCHIVE_TODO: DONE
+  :END:
+
+
+* DONE Support concurrent fetching of feeds
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2022-02-24 Thu 08:11
+  :ARCHIVE_FILE: c:/Users/Graham/Desktop/projects/owlmoon/owlmoon.org
+  :ARCHIVE_CATEGORY: owlmoon
+  :ARCHIVE_TODO: DONE
+  :END:
+  possibly with a worker pool
+
