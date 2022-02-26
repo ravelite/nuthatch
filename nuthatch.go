@@ -8,15 +8,11 @@ import (
 	"path/filepath"
 	"log"
 	"os"
-	//"strings"
-	//"path"
 	"time"
 	"embed"
 	"context"
 	"github.com/pkg/browser"
 	"github.com/mmcdole/gofeed"
-	//"github.com/rickb777/date/period"
-	//"github.com/shibukawa/configdir"
 	"github.com/kirsle/configdir"
 )
 
@@ -148,7 +144,7 @@ func get_config_matches() ([]string,[]string) {
 
 func main() {
 
-	fmt.Println( "Welcome to owlmoon." )
+	fmt.Println( "Welcome to Nuthatch Feedspeeder." )
 
 	//a map from category names to parsed Feeds
 	//the data structure used to generate the HTML report

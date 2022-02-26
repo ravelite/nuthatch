@@ -18,6 +18,10 @@ func check(e error) {
 func main() {
 
 	//usage goes here
+	if len( os.Args ) < 2 {
+		fmt.Println( "usage: nutconvert [feeds.opml]" )
+		return
+	}
 
 	arg1 := os.Args[1]
 	
