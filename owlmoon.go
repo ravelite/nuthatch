@@ -16,7 +16,8 @@ import (
 	"github.com/pkg/browser"
 	"github.com/mmcdole/gofeed"
 	//"github.com/rickb777/date/period"
-	"github.com/shibukawa/configdir"
+	//"github.com/shibukawa/configdir"
+	"github.com/kirsle/configdir"
 )
 
 //parse and process a feed from a URL with optional name to replace the title
@@ -104,56 +105,64 @@ func worker( id int, tasks []feedTask, jobs <-chan int, results chan<- int ) {
 	}
 }
 
-func main() {
+//prints on stdout if a file/dir was found or not
+func report_dir_existence( dir string ) {
+	_, err := os.Stat( dir )
+	if err != nil {
+		fmt.Println( "not found." )
+	} else {
+		fmt.Println( "found." )
+	}
+}
 
-	fmt.Println( "Welcome to owlmoon." )
-
-	var data map[string][]*gofeed.Feed
-	data = make( map[string][]*gofeed.Feed )
-
-	//fp := gofeed.NewParser()
+func get_config_matches() ([]string,[]string) {
 
 	//check for existence of "feeds" in working directory
 	fmt.Print( "Checking existence of \"feeds\" in working directory... " )
 
-	_, err := os.Stat( "feeds" )
-	if err != nil {
-		fmt.Println( "not found." )
-	} else {
-		fmt.Println( "found. ")
-	}
+	report_dir_existence( "feeds" )
 
-	//check for existence of "feeds" in user config directly
-	configDirs := configdir.New("ravelite", "nuthatch")
-	configDirs.LocalPath, _ = filepath.Abs(".") //add local path
+	//check for existence of "feeds" in user config directory
+	userDir := configdir.LocalConfig("nuthatch")
+	userFeeds := filepath.Join( userDir, "feeds" )
 
-	// Checks to user folder
-	folders := configDirs.QueryFolders(configdir.Global)
-	//folders[0].WriteFile("setting.json", data)
-	userFolder := folders[0]
-
-	fmt.Print( "Checking existence of \"feeds\" in user configuration directory:\n" )
-	fmt.Print( userFolder.Path )
-
-	_, err = os.Stat( filepath.Join(userFolder.Path, "feeds" ))
-	if err != nil {
-		fmt.Println( "... not found." )
-	} else {
-		fmt.Println( "... found. " )
-	}
+	fmt.Printf( "Checking existence of \"feeds\" in user directory (%s)... ", userDir )
 	
-	//folder := configDirs.QueryFolderContainsFile("setting.json")
+	report_dir_existence( userFeeds )
+
+	//collect text matches
+	userText := filepath.Join( userFeeds, "*.txt" )
+	m1, _ := filepath.Glob( "feeds/*.txt" )
+	m2, _ := filepath.Glob( userText )
+	textMatches := append( m1, m2... )
+
+	//collect toml matches
+	userToml := filepath.Join( userFeeds, "*.toml" )
+	t1, _ := filepath.Glob( "feeds/*.toml" )
+	t2, _ := filepath.Glob( userToml )
+	tomlMatches := append( t1, t2... )
+
+	return textMatches, tomlMatches
+	
+}
+
+func main() {
+
+	fmt.Println( "Welcome to owlmoon." )
+
+	//a map from category names to parsed Feeds
+	//the data structure used to generate the HTML report
+	var data map[string][]*gofeed.Feed
+	data = make( map[string][]*gofeed.Feed )
+
+	//get config files matching patterns
+	textM, tomlM := get_config_matches()
 
 	var tasks []feedTask
 
-	//PARSE text files
-	matches, _ := filepath.Glob( "feeds/*.txt" )
-	tasks = parseTextFiles( matches, tasks )
-
-	//PARSE toml files
-	matches, _ = filepath.Glob( "feeds/*.toml" )
-	tasks = parseTomlFiles( matches, tasks )
-
+	//PARSE text and toml files
+	tasks = parseTextFiles( textM, tasks )
+	tasks = parseTomlFiles( tomlM, tasks )
 
 	fmt.Printf( "Total feeds to fetch: %d\n", len( tasks ) )
 
