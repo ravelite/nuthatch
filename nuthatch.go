@@ -77,6 +77,10 @@ func process_feed( fp *gofeed.Parser, url string, name string ) (*gofeed.Feed, e
 //go:embed tabs.html
 var tabs embed.FS
 
+//embed the logo
+//go:embed nuthatch_logo.svg
+var logo embed.FS
+
 //task structure used to collect feed URLs and turn them into parsed feeds
 type feedTask struct {
 	Name string
@@ -200,6 +204,8 @@ func main() {
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 	    tmpl.Execute(w, data)
     })
+
+	http.Handle("/nuthatch_logo.svg", http.FileServer(http.FS(logo)))
 
 	go browser.OpenURL("http://localhost:8080")
 
