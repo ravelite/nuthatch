@@ -83,5 +83,6 @@ Categories are displayed as tabs and each feed is a `details` element that can b
 
 Once the page is loaded, the program can be closed immediately.
 
+## Logo attribution
 
-
+The "nuthatch logo" is a derivative of ["Kleiber Sitta europaea-0447.jpg"](https://commons.wikimedia.org/w/index.php?curid=74974549) by [Isiwal](https://commons.wikimedia.org/wiki/User:Isiwal), used under [CC BY](https://creativecommons.org/licenses/by-sa/4.0/). "nuthatch logo" is licensed under CC BY by [ravelite](https://github.com/ravelite).
