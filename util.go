@@ -58,6 +58,18 @@ func sort_category( catlist []*gofeed.Feed ) {
 
 	//sort items in category
 	sort.Slice( catlist, func(i, j int) bool {
+		f1 := catlist[i]
+		f2 := catlist[j]
+
+		//if a feed is empty, we want it at the end
+		if len( f1.Items ) == 0 {
+			return false
+		}
+
+		if len( f2.Items ) == 0 {
+			return true
+		}
+
 		var t1, t2 time.Time
 		t1 = *catlist[i].Items[0].PublishedParsed
 		t2 = *catlist[j].Items[0].PublishedParsed

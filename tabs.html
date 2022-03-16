@@ -72,15 +72,19 @@ nuthatch
   {{range $v}}
   <p><details>
 	<summary>{{.Title}}
-	  {{with index .Items 0}}
-	  {{template "item" .}}
-	  {{end}}
+    {{if gt (len .Items) 0}}
+	    {{with index .Items 0}}
+	    {{template "item" .}}
+	    {{end}}
+    {{end}}
 	</summary>
-	{{with slice .Items 1 (len .Items)}}
-	{{range .}}
-	{{template "item" .}}
-	{{end}}
-	{{end}}
+  {{if gt (len .Items) 1}}
+	  {{with slice .Items 1 (len .Items)}}
+	    {{range .}}
+	      {{template "item" .}}
+	    {{end}}
+	  {{end}}
+  {{end}}
   </details>
   {{end}}
   
